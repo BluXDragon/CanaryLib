@@ -214,6 +214,52 @@ public interface Item extends Cloneable {
      * @return {@code true} if has lore; {@code false} if not
      */
     public boolean hasLore();
+    
+	/**
+	 * Colour this item (leather armour, etc)
+	 * This will convert the given values to a single RGB integer (Red<<16 + Green<<8 + Blue)
+	 * 
+	 * @param red
+	 *            the red value (0-255)
+	 * @param green
+	 *            the green value (0-255)
+	 * @param blue
+	 *            the blue value (0-255)
+	 */
+	public void colourItem(int red, int green, int blue){
+		if (red < 0)red = 0;
+		if (red > 255)red = 255;
+		if (green < 0)green = 0;
+		if (green > 255)green = 255;
+		if (blue < 0)blue = 0;
+		if (blue > 255)blue = 255;
+		int rgb = red;
+		rgb = (rgb << 8) + green;
+		rgb = (rgb << 8) + blue;
+		colourItem(rgb);
+	}
+	
+	/**
+	 * Colour this item (leather armour, etc)
+	 * 
+	 * @param rgbInt
+	 *            The RGB value (Red<<16 + Green<<8 + Blue)
+	 */
+	public void colourItem(int rgbInt){
+		if (getType() != ItemType.LeatherBoots && getType() != ItemType.LeatherLeggings && getType() != ItemType.LeatherChestplate && getType() != ItemType.LeatherHelmet)return;
+		CompoundTag nbt;
+		CompoundTag tag;
+		if (hasDataTag()){
+			nbt = getDataTag();
+			tag = nbt.getCompoundTag("display");
+		}else{
+			nbt = Canary.factory().getNBTFactory().newCompoundTag("tag");
+			tag = Canary.factory().getNBTFactory().newCompoundTag("display");
+			nbt.put("display", tag);
+			setDataTag(nbt);
+		}
+		tag.put("color", rgbInt);
+	}
 
     /**
      * Checks if the Item has a MetaTag or not
